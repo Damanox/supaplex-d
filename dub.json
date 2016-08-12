@@ -3,7 +3,7 @@
     "targetType": "executable",
     "sourcePaths": ["source"],
     "targetPath": "bin",
-	"lflags" : ["+e:\\Development\\D\\dsfml\\"],
+	"lflags" : ["+..\\dsfml\\"],
     "dependencies": {
         "dsfml": "~>2.1.0"
     }
