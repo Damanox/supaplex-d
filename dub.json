@@ -1,0 +1,10 @@
+{
+    "name": "supaplex-d",
+    "targetType": "executable",
+    "sourcePaths": ["source"],
+    "targetPath": "bin",
+	"lflags" : ["+e:\\Development\\D\\dsfml\\"],
+    "dependencies": {
+        "dsfml": "~>2.1.0"
+    }
+}
