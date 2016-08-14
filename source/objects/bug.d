@@ -32,6 +32,11 @@ class Bug : GameObject
         _window.draw(_sprite);
     }
 
+    public override MoveCheckResult push(Murphy player, MoveDirection direction)
+    {
+        return MoveCheckResult.False;
+    }
+
     public override void stop()
     {}
 

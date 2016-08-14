@@ -25,6 +25,11 @@ class RamChip : GameObject
         _sprite = new AnimatedSprite(dur!"msecs"(0), true, false);
     }
 
+    public override MoveCheckResult push(Murphy player, MoveDirection direction)
+    {
+        return MoveCheckResult.False;
+    }
+
     public override void draw()
     {
         _sprite.play(_currentAnimation, null);
@@ -62,6 +67,11 @@ class RamChipLeft : GameObject
         _stand.addTile(14, 9);
         _currentAnimation = _stand;
         _sprite = new AnimatedSprite(dur!"msecs"(0), true, false);
+    }
+
+    public override MoveCheckResult push(Murphy player, MoveDirection direction)
+    {
+        return MoveCheckResult.False;
     }
 
     public override void draw()
@@ -103,6 +113,11 @@ class RamChipRight : GameObject
         _sprite = new AnimatedSprite(dur!"msecs"(0), true, false);
     }
 
+    public override MoveCheckResult push(Murphy player, MoveDirection direction)
+    {
+        return MoveCheckResult.False;
+    }
+
     public override void draw()
     {
         _sprite.play(_currentAnimation, null);
@@ -142,6 +157,11 @@ class RamChipTop : GameObject
         _sprite = new AnimatedSprite(dur!"msecs"(0), true, false);
     }
 
+    public override MoveCheckResult push(Murphy player, MoveDirection direction)
+    {
+        return MoveCheckResult.False;
+    }
+
     public override void draw()
     {
         _sprite.play(_currentAnimation, null);
@@ -179,6 +199,11 @@ class RamChipBottom : GameObject
         _stand.addTile(12, 9);
         _currentAnimation = _stand;
         _sprite = new AnimatedSprite(dur!"msecs"(0), true, false);
+    }
+
+    public override MoveCheckResult push(Murphy player, MoveDirection direction)
+    {
+        return MoveCheckResult.False;
     }
 
     public override void draw()

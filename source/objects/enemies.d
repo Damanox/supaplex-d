@@ -48,6 +48,11 @@ class SnikSnak : GameObject
         _window.draw(_sprite);
     }
 
+    public override MoveCheckResult push(Murphy player, MoveDirection direction)
+    {
+        return MoveCheckResult.False;
+    }
+
     public override void stop()
     {}
 
@@ -99,6 +104,11 @@ class Electron : GameObject
         _sprite.play(_currentAnimation, null);
         _sprite.position = Vector2f(_x * 32f, _y * 32f);
         _window.draw(_sprite);
+    }
+
+    public override MoveCheckResult push(Murphy player, MoveDirection direction)
+    {
+        return MoveCheckResult.False;
     }
 
     public override void stop()

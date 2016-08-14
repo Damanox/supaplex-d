@@ -201,30 +201,22 @@ class Level
         return false;
     }
 
-    public MoveCheckResult checkMove(int x, int y, bool player, MoveDirection direction)
+    public MoveCheckResult checkMove(int x, int y, GameObject object, MoveDirection direction)
     {
         if(_map[x][y] is null)
             return MoveCheckResult.True;
+        auto player = typeid(object) == typeid(Murphy);
         if(typeid(_map[x][y]) == typeid(Base))
             return player ? MoveCheckResult.True : MoveCheckResult.False;
         if(typeid(_map[x][y]) == typeid(Infotron))
             return player ? MoveCheckResult.True : MoveCheckResult.False;
-        if(player && typeid(_map[x][y]) == typeid(Zonk))
+        if(player && typeid(_map[x][y]) != typeid(Dummy))
         {
-            auto object = cast(Zonk)_map[x][y];
-            if(object.fall || object.moving)
+            auto object2 = _map[x][y];
+            if(object2.fall || object2.moving)
                 return MoveCheckResult.False;
             auto res = MoveCheckResult.False;
-            if(direction == MoveDirection.Left && checkMove(object.x - 1, object.y, false, direction) == MoveCheckResult.True)
-                res = MoveCheckResult.Push;
-            else if(direction == MoveDirection.Right && checkMove(object.x + 1, object.y, false, direction) == MoveCheckResult.True)
-                res = MoveCheckResult.Push;
-            if(res == MoveCheckResult.Push)
-            {
-                object.pushed = true;
-                object.setAnimation(direction);
-                move(object, direction);
-            }
+            res = object2.push(cast(Murphy)object, direction);
             return res;
         }
         return MoveCheckResult.False;
@@ -237,20 +229,18 @@ class Level
         object.direction = direction;
         auto player = typeid(object) == typeid(Murphy);
         auto res = MoveCheckResult.False;
-        if(direction == MoveDirection.Up && (res = checkMove(object.x, object.y - 1, player, direction)) != MoveCheckResult.False)
+        if(direction == MoveDirection.Up && (res = checkMove(object.x, object.y - 1, object, direction)) != MoveCheckResult.False)
             object.y = object.y - 1;
-        else if(direction == MoveDirection.Down && (res = checkMove(object.x, object.y + 1, player, direction)) != MoveCheckResult.False)
+        else if(direction == MoveDirection.Down && (res = checkMove(object.x, object.y + 1, object, direction)) != MoveCheckResult.False)
             object.y = object.y + 1;
-        else if(direction == MoveDirection.Left && (res = checkMove(object.x - 1, object.y, player, direction)) != MoveCheckResult.False)
+        else if(direction == MoveDirection.Left && (res = checkMove(object.x - 1, object.y, object, direction)) != MoveCheckResult.False)
             object.x = object.x - 1;
-        else if(direction == MoveDirection.Right && (res = checkMove(object.x + 1, object.y, player, direction)) != MoveCheckResult.False)
+        else if(direction == MoveDirection.Right && (res = checkMove(object.x + 1, object.y, object, direction)) != MoveCheckResult.False)
             object.x = object.x + 1;
         if(res != MoveCheckResult.False)
         {
             if(_map[object.x][object.y] is null)
                 _map[object.x][object.y] = new Dummy(null, null, object.x, object.y);
-            if(res == MoveCheckResult.Push && player)
-                (cast(Murphy)object).setPushAnimation(direction);
             object.moving = true;
             object.sprite.play(object.currentAnimation, &object.finishMove);
         }
@@ -290,13 +280,25 @@ class Level
                 if(y >= 24)
                     continue;
                 auto object = get(x, y);
-                if(object !is null && typeid(object) == typeid(Wall))
+                if(object !is null && (typeid(object) == typeid(Wall) || cast(Hardware)object))
                     continue;
                 if(object !is null && typeid(object) == typeid(Murphy))
                     (cast(Murphy)object).dead = true;
                 auto explosion = new Explosion(_window, _tiles, x, y);
                 explosion.load(this);
                 _map[x][y] = explosion;
+            }
+        }
+    }
+
+    public void explodeFloppies()
+    {
+        foreach(ref row; _map)
+        {
+            foreach(ref cell; row)
+            {
+                if(cell !is null && typeid(cell) == typeid(FloppyYellow))
+                    explode(cell.x, cell.y);
             }
         }
     }

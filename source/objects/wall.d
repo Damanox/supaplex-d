@@ -82,6 +82,11 @@ class Wall : GameObject
         _sprite = new AnimatedSprite(dur!"msecs"(0), true, false);
     }
 
+    public override MoveCheckResult push(Murphy player, MoveDirection direction)
+    {
+        return MoveCheckResult.False;
+    }
+
     public override void draw()
     {
         _sprite.play(_currentAnimation, null);
@@ -101,4 +106,3 @@ class Wall : GameObject
     public override void updateMove2()
     {}
 }
-

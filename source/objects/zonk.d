@@ -14,12 +14,6 @@ class Zonk : GameObject
     private Animation _down;
     private Animation _left;
     private Animation _right;
-    private bool _fall;
-
-    @property public bool fall()
-    {
-        return _fall;
-    }
 
     this(RenderWindow window, Texture texture, int x, int y)
     {
@@ -52,12 +46,25 @@ class Zonk : GameObject
         _sprite.play(_stand, null);
     }
 
-    public void setAnimation(MoveDirection direction)
+    public override MoveCheckResult push(Murphy player, MoveDirection direction)
     {
+        auto res = MoveCheckResult.False;
+        if(_level.check(x, y + 1))
+            return res;
+        if(direction == MoveDirection.Left && _level.checkMove(x - 1, y, this, direction) == MoveCheckResult.True)
+            res = MoveCheckResult.Push;
+        else if(direction == MoveDirection.Right && _level.checkMove(x + 1, y, this, direction) == MoveCheckResult.True)
+            res = MoveCheckResult.Push;
+        if(res != MoveCheckResult.Push)
+            return res;
+        _pushed = true;
         if(direction == MoveDirection.Left)
             _currentAnimation = _left;
         else if(direction == MoveDirection.Right)
             _currentAnimation = _right;
+        _level.move(this, direction);
+        player.setPushAnimation(direction);
+        return res;
     }
 
     public override void draw()

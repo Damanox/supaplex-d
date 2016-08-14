@@ -6,10 +6,42 @@ import animation;
 import level;
 import utils;
 
-class Hardware1 : GameObject
+abstract class Hardware : GameObject
 {
     private Animation _stand;
 
+    this(RenderWindow window, Texture texture, int x, int y)
+    {
+        super(window, texture, x, y);
+    }
+
+    public override MoveCheckResult push(Murphy player, MoveDirection direction)
+    {
+        return MoveCheckResult.False;
+    }
+
+    public override void draw()
+    {
+        _sprite.play(_currentAnimation, null);
+        _sprite.position = Vector2f(_x * 32f, _y * 32f);
+        _window.draw(_sprite);
+    }
+
+    public override void stop()
+    {}
+
+    public override void update(Duration time)
+    {}
+
+    public override void updateMove()
+    {}
+
+    public override void updateMove2()
+    {}
+}
+
+class Hardware1 : Hardware
+{
     this(RenderWindow window, Texture texture, int x, int y)
     {
         super(window, texture, x, y);
@@ -24,31 +56,10 @@ class Hardware1 : GameObject
         _currentAnimation = _stand;
         _sprite = new AnimatedSprite(dur!"msecs"(0), true, false);
     }
-
-    public override void draw()
-    {
-        _sprite.play(_currentAnimation, null);
-        _sprite.position = Vector2f(_x * 32f, _y * 32f);
-        _window.draw(_sprite);
-    }
-
-    public override void stop()
-    {}
-
-    public override void update(Duration time)
-    {}
-
-    public override void updateMove()
-    {}
-
-    public override void updateMove2()
-    {}
 }
 
-class Hardware2 : GameObject
+class Hardware2 : Hardware
 {
-    private Animation _stand;
-
     this(RenderWindow window, Texture texture, int x, int y)
     {
         super(window, texture, x, y);
@@ -63,31 +74,10 @@ class Hardware2 : GameObject
         _currentAnimation = _stand;
         _sprite = new AnimatedSprite(dur!"msecs"(0), true, false);
     }
-
-    public override void draw()
-    {
-        _sprite.play(_currentAnimation, null);
-        _sprite.position = Vector2f(_x * 32f, _y * 32f);
-        _window.draw(_sprite);
-    }
-
-    public override void stop()
-    {}
-
-    public override void update(Duration time)
-    {}
-
-    public override void updateMove()
-    {}
-
-    public override void updateMove2()
-    {}
 }
 
-class Hardware3 : GameObject
+class Hardware3 : Hardware
 {
-    private Animation _stand;
-
     this(RenderWindow window, Texture texture, int x, int y)
     {
         super(window, texture, x, y);
@@ -102,31 +92,10 @@ class Hardware3 : GameObject
         _currentAnimation = _stand;
         _sprite = new AnimatedSprite(dur!"msecs"(0), true, false);
     }
-
-    public override void draw()
-    {
-        _sprite.play(_currentAnimation, null);
-        _sprite.position = Vector2f(_x * 32f, _y * 32f);
-        _window.draw(_sprite);
-    }
-
-    public override void stop()
-    {}
-
-    public override void update(Duration time)
-    {}
-
-    public override void updateMove()
-    {}
-
-    public override void updateMove2()
-    {}
 }
 
-class Hardware4 : GameObject
+class Hardware4 : Hardware
 {
-    private Animation _stand;
-
     this(RenderWindow window, Texture texture, int x, int y)
     {
         super(window, texture, x, y);
@@ -141,31 +110,10 @@ class Hardware4 : GameObject
         _currentAnimation = _stand;
         _sprite = new AnimatedSprite(dur!"msecs"(0), true, false);
     }
-
-    public override void draw()
-    {
-        _sprite.play(_currentAnimation, null);
-        _sprite.position = Vector2f(_x * 32f, _y * 32f);
-        _window.draw(_sprite);
-    }
-
-    public override void stop()
-    {}
-
-    public override void update(Duration time)
-    {}
-
-    public override void updateMove()
-    {}
-
-    public override void updateMove2()
-    {}
 }
 
-class Hardware5 : GameObject
+class Hardware5 : Hardware
 {
-    private Animation _stand;
-
     this(RenderWindow window, Texture texture, int x, int y)
     {
         super(window, texture, x, y);
@@ -180,31 +128,10 @@ class Hardware5 : GameObject
         _currentAnimation = _stand;
         _sprite = new AnimatedSprite(dur!"msecs"(0), true, false);
     }
-
-    public override void draw()
-    {
-        _sprite.play(_currentAnimation, null);
-        _sprite.position = Vector2f(_x * 32f, _y * 32f);
-        _window.draw(_sprite);
-    }
-
-    public override void stop()
-    {}
-
-    public override void update(Duration time)
-    {}
-
-    public override void updateMove()
-    {}
-
-    public override void updateMove2()
-    {}
 }
 
-class Hardware6 : GameObject
+class Hardware6 : Hardware
 {
-    private Animation _stand;
-
     this(RenderWindow window, Texture texture, int x, int y)
     {
         super(window, texture, x, y);
@@ -219,31 +146,10 @@ class Hardware6 : GameObject
         _currentAnimation = _stand;
         _sprite = new AnimatedSprite(dur!"msecs"(0), true, false);
     }
-
-    public override void draw()
-    {
-        _sprite.play(_currentAnimation, null);
-        _sprite.position = Vector2f(_x * 32f, _y * 32f);
-        _window.draw(_sprite);
-    }
-
-    public override void stop()
-    {}
-
-    public override void update(Duration time)
-    {}
-
-    public override void updateMove()
-    {}
-
-    public override void updateMove2()
-    {}
 }
 
-class Hardware7 : GameObject
+class Hardware7 : Hardware
 {
-    private Animation _stand;
-
     this(RenderWindow window, Texture texture, int x, int y)
     {
         super(window, texture, x, y);
@@ -258,31 +164,10 @@ class Hardware7 : GameObject
         _currentAnimation = _stand;
         _sprite = new AnimatedSprite(dur!"msecs"(0), true, false);
     }
-
-    public override void draw()
-    {
-        _sprite.play(_currentAnimation, null);
-        _sprite.position = Vector2f(_x * 32f, _y * 32f);
-        _window.draw(_sprite);
-    }
-
-    public override void stop()
-    {}
-
-    public override void update(Duration time)
-    {}
-
-    public override void updateMove()
-    {}
-
-    public override void updateMove2()
-    {}
 }
 
-class Hardware8 : GameObject
+class Hardware8 : Hardware
 {
-    private Animation _stand;
-
     this(RenderWindow window, Texture texture, int x, int y)
     {
         super(window, texture, x, y);
@@ -297,31 +182,10 @@ class Hardware8 : GameObject
         _currentAnimation = _stand;
         _sprite = new AnimatedSprite(dur!"msecs"(0), true, false);
     }
-
-    public override void draw()
-    {
-        _sprite.play(_currentAnimation, null);
-        _sprite.position = Vector2f(_x * 32f, _y * 32f);
-        _window.draw(_sprite);
-    }
-
-    public override void stop()
-    {}
-
-    public override void update(Duration time)
-    {}
-
-    public override void updateMove()
-    {}
-
-    public override void updateMove2()
-    {}
 }
 
-class Hardware9 : GameObject
+class Hardware9 : Hardware
 {
-    private Animation _stand;
-
     this(RenderWindow window, Texture texture, int x, int y)
     {
         super(window, texture, x, y);
@@ -336,31 +200,10 @@ class Hardware9 : GameObject
         _currentAnimation = _stand;
         _sprite = new AnimatedSprite(dur!"msecs"(0), true, false);
     }
-
-    public override void draw()
-    {
-        _sprite.play(_currentAnimation, null);
-        _sprite.position = Vector2f(_x * 32f, _y * 32f);
-        _window.draw(_sprite);
-    }
-
-    public override void stop()
-    {}
-
-    public override void update(Duration time)
-    {}
-
-    public override void updateMove()
-    {}
-
-    public override void updateMove2()
-    {}
 }
 
-class Hardware10 : GameObject
+class Hardware10 : Hardware
 {
-    private Animation _stand;
-
     this(RenderWindow window, Texture texture, int x, int y)
     {
         super(window, texture, x, y);
@@ -375,23 +218,4 @@ class Hardware10 : GameObject
         _currentAnimation = _stand;
         _sprite = new AnimatedSprite(dur!"msecs"(0), true, false);
     }
-
-    public override void draw()
-    {
-        _sprite.play(_currentAnimation, null);
-        _sprite.position = Vector2f(_x * 32f, _y * 32f);
-        _window.draw(_sprite);
-    }
-
-    public override void stop()
-    {}
-
-    public override void update(Duration time)
-    {}
-
-    public override void updateMove()
-    {}
-
-    public override void updateMove2()
-    {}
 }

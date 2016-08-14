@@ -6,6 +6,7 @@ import animation;
 import level;
 import utils;
 import objects.zonk;
+import objects.murphy;
 
 class Infotron : GameObject
 {
@@ -53,6 +54,11 @@ class Infotron : GameObject
         _sprite.play(_stand, null);
     }
 
+    public override MoveCheckResult push(Murphy player, MoveDirection direction)
+    {
+        return MoveCheckResult.False;
+    }
+
     public override void draw()
     {
         auto animTime = _sprite.getFrameTime() * _sprite.getAnimation.getSize();
@@ -88,7 +94,15 @@ class Infotron : GameObject
         {
             _sprite.setFrameTime(dur!"msecs"(100));
             _currentAnimation = _down;
+            _fall = true;
             _level.move(this, MoveDirection.Down);
+        }
+        else if(_fall)
+        {
+            _fall = false;
+            auto object = _level.get(x, y + 1);
+            if(typeid(object) == typeid(Murphy) && !object.moving)
+                _level.explode(object.x, object.y);
         }
     }
 

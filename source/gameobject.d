@@ -3,6 +3,7 @@
 import dsfml.graphics;
 import animation;
 import level;
+public import objects.murphy;
 
 enum MoveDirection
 {
@@ -34,6 +35,7 @@ abstract class GameObject
     protected int _oldX;
     protected int _oldY;
     protected shared bool _moving;
+    protected bool _fall;
     protected bool _pushed;
 
     this(RenderWindow window, Texture texture, int x, int y)
@@ -45,6 +47,7 @@ abstract class GameObject
     }
 
     public abstract void load(Level level);
+    public abstract MoveCheckResult push(Murphy player, MoveDirection direction);
     public abstract void stop();
     public abstract void draw();
     public abstract void update(Duration time);
@@ -126,6 +129,19 @@ abstract class GameObject
         public void moving(bool moving)
         {
             _moving = moving;
+        }
+    }
+
+    @property
+    {
+        public bool fall()
+        {
+            return _fall;
+        }
+
+        public void fall(bool fall)
+        {
+            _fall = fall;
         }
     }
 

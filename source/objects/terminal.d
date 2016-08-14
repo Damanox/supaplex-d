@@ -5,6 +5,7 @@ import gameobject;
 import animation;
 import level;
 import utils;
+import std.stdio;
 
 class Terminal : GameObject
 {
@@ -30,6 +31,12 @@ class Terminal : GameObject
         _stand.addTile(7, 11);
         _currentAnimation = _stand;
         _sprite = new AnimatedSprite(dur!"msecs"(300), true, true);
+    }
+
+    public override MoveCheckResult push(Murphy player, MoveDirection direction)
+    {
+        _level.explodeFloppies();
+        return MoveCheckResult.False;
     }
 
     public override void draw()
