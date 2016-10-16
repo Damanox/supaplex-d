@@ -267,6 +267,31 @@ class Level
         object.pushed = false;
     }
 
+    public void disappear(GameObject object, MoveDirection direction)
+    {
+        GameObject obj = null;
+        if(direction == MoveDirection.Up)
+            obj = get(object.x, object.y - 1);
+        else if(direction == MoveDirection.Down)
+            obj = get(object.x, object.y + 1);
+        else if(direction == MoveDirection.Left)
+            obj = get(object.x - 1, object.y);
+        else if(direction == MoveDirection.Right)
+            obj = get(object.x + 1, object.y);
+
+        if(obj is null || (typeid(obj) != typeid(Infotron) && typeid(obj) != typeid(Base)))
+            return;
+
+        obj.startDisappear();
+        object.sprite.play(object.currentAnimation, null);
+    }
+
+    public void finishDisappear(GameObject object)
+    {
+        object.stop();
+        _map[object.x][object.y] = null;
+    }
+
     public void explode(int ox, int oy)
     {
         for(auto i = -1; i <= 1; i++)

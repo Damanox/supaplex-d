@@ -15,8 +15,13 @@ class Murphy : GameObject
     private Animation _right;
     private Animation _leftPush;
     private Animation _rightPush;
+    private Animation _lookLeft;
+    private Animation _lookRight;
+    private Animation _lookUp;
+    private Animation _lookDown;
     private Vector2f _center;
     private bool _dead;
+    private bool _looking;
 
     this(RenderWindow window, Texture texture, int x, int y)
     {
@@ -62,6 +67,19 @@ class Murphy : GameObject
         _rightPush.addTile(12, 1);
         _rightPush.addTile(12, 1);
         _rightPush.addTile(12, 1);
+        _lookLeft = new Animation();
+        _lookLeft.setSpriteSheet(_texture);
+        _lookLeft.addTile(7, 1);
+        _lookRight = new Animation();
+        _lookRight.setSpriteSheet(_texture);
+        _lookRight.addTile(10, 1);
+        _lookUp = new Animation();
+        _lookUp.setSpriteSheet(_texture);
+        _lookUp.addTile(8, 1);
+        _lookDown = new Animation();
+        _lookDown.setSpriteSheet(_texture);
+        _lookDown.addTile(9, 1);
+
         _currentAnimation = _stand;
         _sprite = new AnimatedSprite(dur!"msecs"(100), true, false);
         _sprite.setBlendMode(BlendMode.None);
@@ -125,25 +143,68 @@ class Murphy : GameObject
         }
         if(_moving || _dead)
             return;
+
+        if(Keyboard.isKeyPressed(Keyboard.Key.Space))
+        {
+            _looking = true;
+        }
+        else if(_looking)
+        {
+            _looking = false;
+            stop();
+        }
+
         if(Keyboard.isKeyPressed(Keyboard.Key.Up))
         {
-            _currentAnimation = _left;
-            _level.move(this, MoveDirection.Up);
+            if(_looking)
+            {
+                _currentAnimation = _lookUp;
+                _level.disappear(this, MoveDirection.Up);
+            }
+            else
+            {
+                _currentAnimation = _left;
+                _level.move(this, MoveDirection.Up);
+            }
         }
         else if(Keyboard.isKeyPressed(Keyboard.Key.Down))
         {
-            _currentAnimation = _left;
-            _level.move(this, MoveDirection.Down);
+            if(_looking)
+            {
+                _currentAnimation = _lookDown;
+                _level.disappear(this, MoveDirection.Down);
+            }
+            else
+            {
+                _currentAnimation = _left;
+                _level.move(this, MoveDirection.Down);
+            }
         }
         else if(Keyboard.isKeyPressed(Keyboard.Key.Left))
         {
-            _currentAnimation = _left;
-            _level.move(this, MoveDirection.Left);
+            if(_looking)
+            {
+                _currentAnimation = _lookLeft;
+                _level.disappear(this, MoveDirection.Left);
+            }
+            else
+            {
+                _currentAnimation = _left;
+                _level.move(this, MoveDirection.Left);
+            }
         }
         else if(Keyboard.isKeyPressed(Keyboard.Key.Right))
         {
-            _currentAnimation = _right;
-            _level.move(this, MoveDirection.Right);
+            if(_looking)
+            {
+                _currentAnimation = _lookRight;
+                _level.disappear(this, MoveDirection.Right);
+            }
+            else
+            {
+                _currentAnimation = _right;
+                _level.move(this, MoveDirection.Right);
+            }
         }
         else
         {

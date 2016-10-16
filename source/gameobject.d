@@ -185,5 +185,13 @@ abstract class GameObject
     {
         _level.finishMove(this);
     }
+
+    public void startDisappear()
+    {}
+
+    public void finishDisappear()
+    {
+        _level.finishDisappear(this);
+    }
 }
 

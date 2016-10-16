@@ -14,6 +14,7 @@ class Infotron : GameObject
     private Animation _down;
     private Animation _left;
     private Animation _right;
+    private Animation _disappear;
 
     this(RenderWindow window, Texture texture, int x, int y)
     {
@@ -49,6 +50,15 @@ class Infotron : GameObject
         _right.addTile(5, 6);
         _right.addTile(6, 6);
         _right.addTile(7, 6);
+        _disappear = new Animation();
+        _disappear.setSpriteSheet(_texture);
+        _disappear.addTile(8, 6);
+        _disappear.addTile(9, 6);
+        _disappear.addTile(10, 6);
+        _disappear.addTile(11, 6);
+        _disappear.addTile(12, 6);
+        _disappear.addTile(13, 6);
+        _disappear.addTile(14, 6);
         _currentAnimation = _stand;
         _sprite = new AnimatedSprite(dur!"msecs"(100), true, false);
         _sprite.play(_stand, null);
@@ -57,6 +67,13 @@ class Infotron : GameObject
     public override MoveCheckResult push(Murphy player, MoveDirection direction)
     {
         return MoveCheckResult.False;
+    }
+
+    public override void startDisappear()
+    {
+        _currentAnimation = _disappear;
+        _sprite.setFrameTime(dur!"msecs"(50));
+        _sprite.play(_disappear, &finishDisappear);
     }
 
     public override void draw()
@@ -78,6 +95,7 @@ class Infotron : GameObject
     public override void stop()
     {
         _currentAnimation = _stand;
+        _sprite.setFrameTime(dur!"msecs"(100));
         _sprite.play(_stand, null);
     }
 
