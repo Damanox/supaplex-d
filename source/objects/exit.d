@@ -5,8 +5,9 @@ import gameobject;
 import animation;
 import level;
 import utils;
+import interfaces;
 
-class Exit : GameObject
+class Exit : GameObject, IUseable
 {
     private Animation _stand;
 
@@ -34,6 +35,11 @@ class Exit : GameObject
 
     public override void stop()
     {}
+
+    public override void use(Murphy player, MoveDirection direction)
+    {
+
+    }
 
     public override void update(Duration time)
     {}

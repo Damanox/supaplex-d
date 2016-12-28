@@ -206,20 +206,23 @@ class Level
     {
         if(_map[x][y] is null)
             return MoveCheckResult.True;
-        auto player = typeid(object) == typeid(Murphy);
+        auto player = cast(Murphy)object;
         auto consumable = cast(IConsumable)_map[x][y];
         if(consumable !is null)
-            return player ? MoveCheckResult.True : MoveCheckResult.False;
-        if(player && typeid(_map[x][y]) != typeid(Dummy))
+            return player !is null ? MoveCheckResult.True : MoveCheckResult.False;
+        if(player !is null && typeid(_map[x][y]) != typeid(Dummy))
         {
             auto object2 = _map[x][y];
             if(object2 is null || object2.fall || object2.moving)
                 return MoveCheckResult.False;
             auto pushable = cast(IPushable)object2;
+            auto useable = cast(IUseable)object2;
+            if(useable !is null)
+                useable.use(player, direction);
             if(pushable is null)
                 return MoveCheckResult.False;
             auto res = MoveCheckResult.False;
-            res = pushable.push(cast(Murphy)object, direction);
+            res = pushable.push(player, direction);
             return res;
         }
         return MoveCheckResult.False;
@@ -253,7 +256,7 @@ class Level
                 _map[object.oldX][object.oldY] = null;
             _map[object.x][object.y] = object;
             object.direction = MoveDirection.None;
-            object.stop();
+            //object.stop();
             object.moving = false;
             object.pushed = false;
         }

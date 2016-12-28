@@ -95,6 +95,19 @@ class Murphy : GameObject
             _currentAnimation = _rightPush;
     }
 
+    public void setLookAnimation(MoveDirection direction)
+    {
+        if(direction == MoveDirection.Left)
+            _currentAnimation = _lookLeft;
+        else if(direction == MoveDirection.Right)
+            _currentAnimation = _lookRight;
+        else if(direction == MoveDirection.Up)
+            _currentAnimation = _lookUp;
+        else if(direction == MoveDirection.Down)
+            _currentAnimation = _lookDown;
+        _sprite.play(_currentAnimation, null);
+    }
+
     public override void stop()
     {
         _currentAnimation = _stand;

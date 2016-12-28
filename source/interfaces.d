@@ -20,7 +20,7 @@ public interface IConsumable
 
 public interface IUseable
 {
-    void use();
+    void use(Murphy player, MoveDirection direction);
 }
 
 public interface ISlideable {}

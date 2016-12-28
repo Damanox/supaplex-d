@@ -5,9 +5,10 @@ import gameobject;
 import animation;
 import level;
 import utils;
+import interfaces;
 import std.stdio;
 
-class Terminal : GameObject
+class Terminal : GameObject, IUseable
 {
     private Animation _stand;
 
@@ -30,7 +31,7 @@ class Terminal : GameObject
         _stand.addTile(6, 11);
         _stand.addTile(7, 11);
         _currentAnimation = _stand;
-        _sprite = new AnimatedSprite(dur!"msecs"(300), true, true);
+        _sprite = new AnimatedSprite(dur!"msecs"(600), true, true);
     }
 
     public override void draw()
@@ -42,6 +43,13 @@ class Terminal : GameObject
 
     public override void stop()
     {}
+
+    public override void use(Murphy player, MoveDirection direction)
+    {
+        player.setLookAnimation(direction);
+        _level.explode();
+        _sprite.setFrameTime(dur!"msecs"(300));
+    }
 
     public override void update(Duration time)
     {
