@@ -6,6 +6,7 @@ import std.conv;
 import dsfml.graphics;
 import gameobject;
 import utils;
+import interfaces;
 import objects.wall;
 import objects.base;
 import objects.murphy;
@@ -206,17 +207,19 @@ class Level
         if(_map[x][y] is null)
             return MoveCheckResult.True;
         auto player = typeid(object) == typeid(Murphy);
-        if(typeid(_map[x][y]) == typeid(Base))
-            return player ? MoveCheckResult.True : MoveCheckResult.False;
-        if(typeid(_map[x][y]) == typeid(Infotron))
+        auto consumable = cast(IConsumable)_map[x][y];
+        if(consumable !is null)
             return player ? MoveCheckResult.True : MoveCheckResult.False;
         if(player && typeid(_map[x][y]) != typeid(Dummy))
         {
             auto object2 = _map[x][y];
-            if(object2.fall || object2.moving)
+            if(object2 is null || object2.fall || object2.moving)
+                return MoveCheckResult.False;
+            auto pushable = cast(IPushable)object2;
+            if(pushable is null)
                 return MoveCheckResult.False;
             auto res = MoveCheckResult.False;
-            res = object2.push(cast(Murphy)object, direction);
+            res = pushable.push(cast(Murphy)object, direction);
             return res;
         }
         return MoveCheckResult.False;
@@ -279,17 +282,13 @@ class Level
         else if(direction == MoveDirection.Right)
             obj = get(object.x + 1, object.y);
 
-        if(obj is null || (typeid(obj) != typeid(Infotron) && typeid(obj) != typeid(Base)))
+        auto consumable = cast(IConsumable)obj;
+
+        if(consumable is null)
             return;
 
-        obj.startDisappear();
+        consumable.startDisappear();
         object.sprite.play(object.currentAnimation, null);
-    }
-
-    public void finishDisappear(GameObject object)
-    {
-        object.stop();
-        _map[object.x][object.y] = null;
     }
 
     public void explode(int ox, int oy)
@@ -305,7 +304,8 @@ class Level
                 if(y >= 24)
                     continue;
                 auto object = get(x, y);
-                if(object !is null && (typeid(object) == typeid(Wall) || cast(Hardware)object))
+                auto nonDestructible = cast(INonDestructible)object;
+                if(nonDestructible !is null)
                     continue;
                 if(object !is null && typeid(object) == typeid(Murphy))
                     (cast(Murphy)object).dead = true;
@@ -316,13 +316,14 @@ class Level
         }
     }
 
-    public void explodeFloppies()
+    public void explode()
     {
         foreach(ref row; _map)
         {
             foreach(ref cell; row)
             {
-                if(cell !is null && typeid(cell) == typeid(FloppyYellow))
+                auto explosive = cast(IExplosive)cell;
+                if(explosive !is null)
                     explode(cell.x, cell.y);
             }
         }

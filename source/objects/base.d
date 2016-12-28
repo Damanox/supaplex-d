@@ -5,8 +5,9 @@ import gameobject;
 import animation;
 import level;
 import utils;
+import interfaces;
 
-class Base : GameObject
+class Base : GameObject, IConsumable
 {
     private Animation _stand;
     private Animation _disappear;
@@ -36,15 +37,15 @@ class Base : GameObject
         _sprite.play(_stand, null);
     }
 
-    public override MoveCheckResult push(Murphy player, MoveDirection direction)
-    {
-        return MoveCheckResult.False;
-    }
-
     public override void startDisappear()
     {
         _currentAnimation = _disappear;
-        _sprite.play(_disappear, &finishDisappear);
+        _sprite.play(_disappear, &stopDisappear);
+    }
+
+    public override void stopDisappear()
+    {
+        _level.destroy(x, y);
     }
 
     public override void draw()

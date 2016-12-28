@@ -33,12 +33,6 @@ class Terminal : GameObject
         _sprite = new AnimatedSprite(dur!"msecs"(300), true, true);
     }
 
-    public override MoveCheckResult push(Murphy player, MoveDirection direction)
-    {
-        _level.explodeFloppies();
-        return MoveCheckResult.False;
-    }
-
     public override void draw()
     {
         _sprite.play(_currentAnimation, null);

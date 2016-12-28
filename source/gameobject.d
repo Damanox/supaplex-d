@@ -47,7 +47,6 @@ abstract class GameObject
     }
 
     public abstract void load(Level level);
-    public abstract MoveCheckResult push(Murphy player, MoveDirection direction);
     public abstract void stop();
     public abstract void draw();
     public abstract void update(Duration time);
@@ -184,14 +183,6 @@ abstract class GameObject
     public void finishMove()
     {
         _level.finishMove(this);
-    }
-
-    public void startDisappear()
-    {}
-
-    public void finishDisappear()
-    {
-        _level.finishDisappear(this);
     }
 }
 

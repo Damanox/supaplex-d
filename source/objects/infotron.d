@@ -5,10 +5,11 @@ import gameobject;
 import animation;
 import level;
 import utils;
+import interfaces;
 import objects.zonk;
 import objects.murphy;
 
-class Infotron : GameObject
+class Infotron : GameObject, IConsumable, ISlideable
 {
     private Animation _stand;
     private Animation _down;
@@ -64,16 +65,17 @@ class Infotron : GameObject
         _sprite.play(_stand, null);
     }
 
-    public override MoveCheckResult push(Murphy player, MoveDirection direction)
-    {
-        return MoveCheckResult.False;
-    }
-
     public override void startDisappear()
     {
         _currentAnimation = _disappear;
         _sprite.setFrameTime(dur!"msecs"(50));
-        _sprite.play(_disappear, &finishDisappear);
+        _sprite.play(_disappear, &stopDisappear);
+    }
+
+    public override void stopDisappear()
+    {
+        stop();
+        _level.destroy(x, y);
     }
 
     public override void draw()
@@ -128,20 +130,21 @@ class Infotron : GameObject
     {
         if(_moving)
             return;
-        if(_level.check(x - 1, y + 1))
+
+        auto object = _level.get(x, y + 1);
+        auto slideable = cast(ISlideable)object;
+        if(_level.check(x - 1, y) && _level.check(x - 1, y + 1))
         {
-            auto object = _level.get(x, y + 1);
-            if(!object.moving && (typeid(object) == typeid(Zonk) || typeid(object) == typeid(Infotron)))
+            if(!object.moving && slideable)
             {
                 _sprite.setFrameTime(dur!"msecs"(50));
                 _currentAnimation = _left;
                 _level.move(this, MoveDirection.Left);
             }
         }
-        else if(_level.check(x + 1, y + 1))
+        else if(_level.check(x + 1, y) && _level.check(x + 1, y + 1))
         {
-            auto object = _level.get(x, y + 1);
-            if(!object.moving && (typeid(object) == typeid(Zonk) || typeid(object) == typeid(Infotron)))
+            if(!object.moving && slideable)
             {
                 _sprite.setFrameTime(dur!"msecs"(50));
                 _currentAnimation = _right;

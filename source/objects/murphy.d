@@ -87,11 +87,6 @@ class Murphy : GameObject
         _sprite.position = Vector2f(_x * 32f, _y * 32f);
     }
 
-    public override MoveCheckResult push(Murphy player, MoveDirection direction)
-    {
-        return MoveCheckResult.False;
-    }
-
     public void setPushAnimation(MoveDirection direction)
     {
         if(direction == MoveDirection.Left)

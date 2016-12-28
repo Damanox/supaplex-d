@@ -5,9 +5,10 @@ import gameobject;
 import animation;
 import level;
 import utils;
+import interfaces;
 import objects.dummy;
 
-class FloppyOrange : GameObject
+class FloppyOrange : GameObject, IPushable
 {
     private Animation _stand;
 
@@ -94,7 +95,7 @@ class FloppyOrange : GameObject
     {}
 }
 
-class FloppyYellow : GameObject
+class FloppyYellow : GameObject, IPushable, IExplosive
 {
     private Animation _stand;
 
@@ -180,11 +181,6 @@ class FloppyRed : GameObject
         _stand.addTile(2, 12);
         _currentAnimation = _stand;
         _sprite = new AnimatedSprite(dur!"msecs"(0), true, false);
-    }
-
-    public override MoveCheckResult push(Murphy player, MoveDirection direction)
-    {
-        return MoveCheckResult.False;
     }
 
     public override void draw()

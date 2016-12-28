@@ -5,6 +5,7 @@ import gameobject;
 import animation;
 import level;
 import utils;
+import interfaces;
 
 enum Position
 {
@@ -19,7 +20,7 @@ enum Position
     RightBottom
 }
 
-class Wall : GameObject
+class Wall : GameObject, INonDestructible
 {
     private Animation _stand;
     private Position _position;
@@ -80,11 +81,6 @@ class Wall : GameObject
             _stand.addTile(6, 9);
         _currentAnimation = _stand;
         _sprite = new AnimatedSprite(dur!"msecs"(0), true, false);
-    }
-
-    public override MoveCheckResult push(Murphy player, MoveDirection direction)
-    {
-        return MoveCheckResult.False;
     }
 
     public override void draw()

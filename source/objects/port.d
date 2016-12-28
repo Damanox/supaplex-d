@@ -25,11 +25,6 @@ class PortLeft : GameObject
         _sprite = new AnimatedSprite(dur!"msecs"(0), true, false);
     }
 
-    public override MoveCheckResult push(Murphy player, MoveDirection direction)
-    {
-        return MoveCheckResult.False;
-    }
-
     public override void draw()
     {
         _sprite.play(_currentAnimation, null);
@@ -67,11 +62,6 @@ class PortRight : GameObject
         _stand.addTile(4, 13);
         _currentAnimation = _stand;
         _sprite = new AnimatedSprite(dur!"msecs"(0), true, false);
-    }
-
-    public override MoveCheckResult push(Murphy player, MoveDirection direction)
-    {
-        return MoveCheckResult.False;
     }
 
     public override void draw()
@@ -113,11 +103,6 @@ class PortUp : GameObject
         _sprite = new AnimatedSprite(dur!"msecs"(0), true, false);
     }
 
-    public override MoveCheckResult push(Murphy player, MoveDirection direction)
-    {
-        return MoveCheckResult.False;
-    }
-
     public override void draw()
     {
         _sprite.play(_currentAnimation, null);
@@ -157,11 +142,6 @@ class PortDown : GameObject
         _sprite = new AnimatedSprite(dur!"msecs"(0), true, false);
     }
 
-    public override MoveCheckResult push(Murphy player, MoveDirection direction)
-    {
-        return MoveCheckResult.False;
-    }
-
     public override void draw()
     {
         _sprite.play(_currentAnimation, null);
@@ -199,11 +179,6 @@ class Port2WayVert : GameObject
         _stand.addTile(0, 13);
         _currentAnimation = _stand;
         _sprite = new AnimatedSprite(dur!"msecs"(0), true, false);
-    }
-
-    public override MoveCheckResult push(Murphy player, MoveDirection direction)
-    {
-        return MoveCheckResult.False;
     }
 
     public override void draw()
@@ -252,11 +227,6 @@ class Port2WayHoriz : GameObject
         _window.draw(_sprite);
     }
 
-    public override MoveCheckResult push(Murphy player, MoveDirection direction)
-    {
-        return MoveCheckResult.False;
-    }
-
     public override void stop()
     {}
 
@@ -287,11 +257,6 @@ class Port4Way : GameObject
         _stand.addTile(2, 13);
         _currentAnimation = _stand;
         _sprite = new AnimatedSprite(dur!"msecs"(0), true, false);
-    }
-
-    public override MoveCheckResult push(Murphy player, MoveDirection direction)
-    {
-        return MoveCheckResult.False;
     }
 
     public override void draw()
@@ -333,11 +298,6 @@ class GravityPortLeft : GameObject
         _sprite = new AnimatedSprite(dur!"msecs"(0), true, false);
     }
 
-    public override MoveCheckResult push(Murphy player, MoveDirection direction)
-    {
-        return MoveCheckResult.False;
-    }
-
     public override void draw()
     {
         _sprite.play(_currentAnimation, null);
@@ -375,11 +335,6 @@ class GravityPortRight : GameObject
         _stand.addTile(4, 13);
         _currentAnimation = _stand;
         _sprite = new AnimatedSprite(dur!"msecs"(0), true, false);
-    }
-
-    public override MoveCheckResult push(Murphy player, MoveDirection direction)
-    {
-        return MoveCheckResult.False;
     }
 
     public override void draw()
@@ -421,11 +376,6 @@ class GravityPortUp : GameObject
         _sprite = new AnimatedSprite(dur!"msecs"(0), true, false);
     }
 
-    public override MoveCheckResult push(Murphy player, MoveDirection direction)
-    {
-        return MoveCheckResult.False;
-    }
-
     public override void draw()
     {
         _sprite.play(_currentAnimation, null);
@@ -463,11 +413,6 @@ class GravityPortDown : GameObject
         _stand.addTile(3, 13);
         _currentAnimation = _stand;
         _sprite = new AnimatedSprite(dur!"msecs"(0), true, false);
-    }
-
-    public override MoveCheckResult push(Murphy player, MoveDirection direction)
-    {
-        return MoveCheckResult.False;
     }
 
     public override void draw()

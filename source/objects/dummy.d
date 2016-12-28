@@ -14,11 +14,6 @@ class Dummy : GameObject
     public override void load(Level level)
     {}
 
-    public override MoveCheckResult push(Murphy player, MoveDirection direction)
-    {
-        return MoveCheckResult.False;
-    }
-
     public override void stop()
     {}
 

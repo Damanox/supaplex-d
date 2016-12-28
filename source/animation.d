@@ -7,10 +7,17 @@ class Animation
 {
     private IntRect[] _frames;
     private Texture _texture;
+    private string _name;
 
     this()
     {
         _texture = null;
+    }
+
+    this(string name)
+    {
+        _texture = null;
+        _name = name;
     }
 
     void addFrame(IntRect rect)
@@ -36,6 +43,11 @@ class Animation
     const IntRect getFrame(size_t n)
     {
         return _frames[n];
+    }
+
+    string getName() const
+    {
+        return _name;
     }
 }
 
