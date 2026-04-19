@@ -55,10 +55,4 @@ class Terminal : GameObject, IUseable
     {
         _sprite.update(time);
     }
-
-    public override void updateMove()
-    {}
-
-    public override void updateMove2()
-    {}
 }

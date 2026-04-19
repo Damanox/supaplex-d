@@ -3,8 +3,8 @@
     "targetType": "executable",
     "sourcePaths": ["source"],
     "targetPath": "bin",
-	"lflags" : ["+..\\dsfml\\"],
+	"lflags-windows" : ["/LIBPATH:..\\dsfml\\"],
     "dependencies": {
-        "dsfml": "~>2.1.0"
+        "dsfml": "~>2.1.1"
     }
 }

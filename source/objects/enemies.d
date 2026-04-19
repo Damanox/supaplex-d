@@ -55,12 +55,6 @@ class SnikSnak : GameObject
     {
         _sprite.update(time);
     }
-
-    public override void updateMove()
-    {}
-
-    public override void updateMove2()
-    {}
 }
 
 class Electron : GameObject
@@ -108,10 +102,4 @@ class Electron : GameObject
     {
         _sprite.update(time);
     }
-
-    public override void updateMove()
-    {}
-
-    public override void updateMove2()
-    {}
 }

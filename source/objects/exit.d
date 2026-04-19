@@ -43,10 +43,4 @@ class Exit : GameObject, IUseable
 
     public override void update(Duration time)
     {}
-
-    public override void updateMove()
-    {}
-
-    public override void updateMove2()
-    {}
 }

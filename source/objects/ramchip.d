@@ -5,11 +5,33 @@ import gameobject;
 import animation;
 import level;
 import utils;
+import interfaces;
 
-class RamChip : GameObject
+class RamChipBase : GameObject
 {
     private Animation _stand;
 
+    this(RenderWindow window, Texture texture, int x, int y)
+    {
+        super(window, texture, x, y);
+    }
+
+    public override void draw()
+    {
+        _sprite.play(_currentAnimation, null);
+        _sprite.position = Vector2f(_x * 32f, _y * 32f);
+        _window.draw(_sprite);
+    }
+
+    public override void stop()
+    {}
+
+    public override void update(Duration time)
+    {}
+}
+
+class RamChip : RamChipBase, ISlideable
+{
     this(RenderWindow window, Texture texture, int x, int y)
     {
         super(window, texture, x, y);
@@ -24,31 +46,10 @@ class RamChip : GameObject
         _currentAnimation = _stand;
         _sprite = new AnimatedSprite(dur!"msecs"(0), true, false);
     }
-
-    public override void draw()
-    {
-        _sprite.play(_currentAnimation, null);
-        _sprite.position = Vector2f(_x * 32f, _y * 32f);
-        _window.draw(_sprite);
-    }
-
-    public override void stop()
-    {}
-
-    public override void update(Duration time)
-    {}
-
-    public override void updateMove()
-    {}
-
-    public override void updateMove2()
-    {}
 }
 
-class RamChipLeft : GameObject
+class RamChipLeft : RamChipBase
 {
-    private Animation _stand;
-
     this(RenderWindow window, Texture texture, int x, int y)
     {
         super(window, texture, x, y);
@@ -63,31 +64,10 @@ class RamChipLeft : GameObject
         _currentAnimation = _stand;
         _sprite = new AnimatedSprite(dur!"msecs"(0), true, false);
     }
-
-    public override void draw()
-    {
-        _sprite.play(_currentAnimation, null);
-        _sprite.position = Vector2f(_x * 32f, _y * 32f);
-        _window.draw(_sprite);
-    }
-
-    public override void stop()
-    {}
-
-    public override void update(Duration time)
-    {}
-
-    public override void updateMove()
-    {}
-
-    public override void updateMove2()
-    {}
 }
 
-class RamChipRight : GameObject
+class RamChipRight : RamChipBase
 {
-    private Animation _stand;
-
     this(RenderWindow window, Texture texture, int x, int y)
     {
         super(window, texture, x, y);
@@ -102,31 +82,10 @@ class RamChipRight : GameObject
         _currentAnimation = _stand;
         _sprite = new AnimatedSprite(dur!"msecs"(0), true, false);
     }
-
-    public override void draw()
-    {
-        _sprite.play(_currentAnimation, null);
-        _sprite.position = Vector2f(_x * 32f, _y * 32f);
-        _window.draw(_sprite);
-    }
-
-    public override void stop()
-    {}
-
-    public override void update(Duration time)
-    {}
-
-    public override void updateMove()
-    {}
-
-    public override void updateMove2()
-    {}
 }
 
-class RamChipTop : GameObject
+class RamChipTop : RamChipBase
 {
-    private Animation _stand;
-
     this(RenderWindow window, Texture texture, int x, int y)
     {
         super(window, texture, x, y);
@@ -141,31 +100,10 @@ class RamChipTop : GameObject
         _currentAnimation = _stand;
         _sprite = new AnimatedSprite(dur!"msecs"(0), true, false);
     }
-
-    public override void draw()
-    {
-        _sprite.play(_currentAnimation, null);
-        _sprite.position = Vector2f(_x * 32f, _y * 32f);
-        _window.draw(_sprite);
-    }
-
-    public override void stop()
-    {}
-
-    public override void update(Duration time)
-    {}
-
-    public override void updateMove()
-    {}
-
-    public override void updateMove2()
-    {}
 }
 
-class RamChipBottom : GameObject
+class RamChipBottom : RamChipBase
 {
-    private Animation _stand;
-
     this(RenderWindow window, Texture texture, int x, int y)
     {
         super(window, texture, x, y);
@@ -180,24 +118,5 @@ class RamChipBottom : GameObject
         _currentAnimation = _stand;
         _sprite = new AnimatedSprite(dur!"msecs"(0), true, false);
     }
-
-    public override void draw()
-    {
-        _sprite.play(_currentAnimation, null);
-        _sprite.position = Vector2f(_x * 32f, _y * 32f);
-        _window.draw(_sprite);
-    }
-
-    public override void stop()
-    {}
-
-    public override void update(Duration time)
-    {}
-
-    public override void updateMove()
-    {}
-
-    public override void updateMove2()
-    {}
 }
 

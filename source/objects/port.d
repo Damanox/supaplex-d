@@ -6,10 +6,31 @@ import animation;
 import level;
 import utils;
 
-class PortLeft : GameObject
+class Port : GameObject
 {
     private Animation _stand;
 
+    this(RenderWindow window, Texture texture, int x, int y)
+    {
+        super(window, texture, x, y);
+    }
+
+    public override void draw()
+    {
+        _sprite.play(_currentAnimation, null);
+        _sprite.position = Vector2f(_x * 32f, _y * 32f);
+        _window.draw(_sprite);
+    }
+
+    public override void stop()
+    {}
+
+    public override void update(Duration time)
+    {}
+}
+
+class PortLeft : Port
+{
     this(RenderWindow window, Texture texture, int x, int y)
     {
         super(window, texture, x, y);
@@ -24,31 +45,10 @@ class PortLeft : GameObject
         _currentAnimation = _stand;
         _sprite = new AnimatedSprite(dur!"msecs"(0), true, false);
     }
-
-    public override void draw()
-    {
-        _sprite.play(_currentAnimation, null);
-        _sprite.position = Vector2f(_x * 32f, _y * 32f);
-        _window.draw(_sprite);
-    }
-
-    public override void stop()
-    {}
-
-    public override void update(Duration time)
-    {}
-
-    public override void updateMove()
-    {}
-
-    public override void updateMove2()
-    {}
 }
 
-class PortRight : GameObject
+class PortRight : Port
 {
-    private Animation _stand;
-
     this(RenderWindow window, Texture texture, int x, int y)
     {
         super(window, texture, x, y);
@@ -63,31 +63,10 @@ class PortRight : GameObject
         _currentAnimation = _stand;
         _sprite = new AnimatedSprite(dur!"msecs"(0), true, false);
     }
-
-    public override void draw()
-    {
-        _sprite.play(_currentAnimation, null);
-        _sprite.position = Vector2f(_x * 32f, _y * 32f);
-        _window.draw(_sprite);
-    }
-
-    public override void stop()
-    {}
-
-    public override void update(Duration time)
-    {}
-
-    public override void updateMove()
-    {}
-
-    public override void updateMove2()
-    {}
 }
 
-class PortUp : GameObject
+class PortUp : Port
 {
-    private Animation _stand;
-
     this(RenderWindow window, Texture texture, int x, int y)
     {
         super(window, texture, x, y);
@@ -102,31 +81,10 @@ class PortUp : GameObject
         _currentAnimation = _stand;
         _sprite = new AnimatedSprite(dur!"msecs"(0), true, false);
     }
-
-    public override void draw()
-    {
-        _sprite.play(_currentAnimation, null);
-        _sprite.position = Vector2f(_x * 32f, _y * 32f);
-        _window.draw(_sprite);
-    }
-
-    public override void stop()
-    {}
-
-    public override void update(Duration time)
-    {}
-
-    public override void updateMove()
-    {}
-
-    public override void updateMove2()
-    {}
 }
 
-class PortDown : GameObject
+class PortDown : Port
 {
-    private Animation _stand;
-
     this(RenderWindow window, Texture texture, int x, int y)
     {
         super(window, texture, x, y);
@@ -141,31 +99,10 @@ class PortDown : GameObject
         _currentAnimation = _stand;
         _sprite = new AnimatedSprite(dur!"msecs"(0), true, false);
     }
-
-    public override void draw()
-    {
-        _sprite.play(_currentAnimation, null);
-        _sprite.position = Vector2f(_x * 32f, _y * 32f);
-        _window.draw(_sprite);
-    }
-
-    public override void stop()
-    {}
-
-    public override void update(Duration time)
-    {}
-
-    public override void updateMove()
-    {}
-
-    public override void updateMove2()
-    {}
 }
 
-class Port2WayVert : GameObject
+class Port2WayVert : Port
 {
-    private Animation _stand;
-
     this(RenderWindow window, Texture texture, int x, int y)
     {
         super(window, texture, x, y);
@@ -180,31 +117,10 @@ class Port2WayVert : GameObject
         _currentAnimation = _stand;
         _sprite = new AnimatedSprite(dur!"msecs"(0), true, false);
     }
-
-    public override void draw()
-    {
-        _sprite.play(_currentAnimation, null);
-        _sprite.position = Vector2f(_x * 32f, _y * 32f);
-        _window.draw(_sprite);
-    }
-
-    public override void stop()
-    {}
-
-    public override void update(Duration time)
-    {}
-
-    public override void updateMove()
-    {}
-
-    public override void updateMove2()
-    {}
 }
 
-class Port2WayHoriz : GameObject
+class Port2WayHoriz : Port
 {
-    private Animation _stand;
-
     this(RenderWindow window, Texture texture, int x, int y)
     {
         super(window, texture, x, y);
@@ -219,31 +135,10 @@ class Port2WayHoriz : GameObject
         _currentAnimation = _stand;
         _sprite = new AnimatedSprite(dur!"msecs"(0), true, false);
     }
-
-    public override void draw()
-    {
-        _sprite.play(_currentAnimation, null);
-        _sprite.position = Vector2f(_x * 32f, _y * 32f);
-        _window.draw(_sprite);
-    }
-
-    public override void stop()
-    {}
-
-    public override void update(Duration time)
-    {}
-
-    public override void updateMove()
-    {}
-
-    public override void updateMove2()
-    {}
 }
 
-class Port4Way : GameObject
+class Port4Way : Port
 {
-    private Animation _stand;
-
     this(RenderWindow window, Texture texture, int x, int y)
     {
         super(window, texture, x, y);
@@ -258,31 +153,10 @@ class Port4Way : GameObject
         _currentAnimation = _stand;
         _sprite = new AnimatedSprite(dur!"msecs"(0), true, false);
     }
-
-    public override void draw()
-    {
-        _sprite.play(_currentAnimation, null);
-        _sprite.position = Vector2f(_x * 32f, _y * 32f);
-        _window.draw(_sprite);
-    }
-
-    public override void stop()
-    {}
-
-    public override void update(Duration time)
-    {}
-
-    public override void updateMove()
-    {}
-
-    public override void updateMove2()
-    {}
 }
 
-class GravityPortLeft : GameObject
+class GravityPortLeft : Port
 {
-    private Animation _stand;
-
     this(RenderWindow window, Texture texture, int x, int y)
     {
         super(window, texture, x, y);
@@ -297,31 +171,10 @@ class GravityPortLeft : GameObject
         _currentAnimation = _stand;
         _sprite = new AnimatedSprite(dur!"msecs"(0), true, false);
     }
-
-    public override void draw()
-    {
-        _sprite.play(_currentAnimation, null);
-        _sprite.position = Vector2f(_x * 32f, _y * 32f);
-        _window.draw(_sprite);
-    }
-
-    public override void stop()
-    {}
-
-    public override void update(Duration time)
-    {}
-
-    public override void updateMove()
-    {}
-
-    public override void updateMove2()
-    {}
 }
 
-class GravityPortRight : GameObject
+class GravityPortRight : Port
 {
-    private Animation _stand;
-
     this(RenderWindow window, Texture texture, int x, int y)
     {
         super(window, texture, x, y);
@@ -336,31 +189,10 @@ class GravityPortRight : GameObject
         _currentAnimation = _stand;
         _sprite = new AnimatedSprite(dur!"msecs"(0), true, false);
     }
-
-    public override void draw()
-    {
-        _sprite.play(_currentAnimation, null);
-        _sprite.position = Vector2f(_x * 32f, _y * 32f);
-        _window.draw(_sprite);
-    }
-
-    public override void stop()
-    {}
-
-    public override void update(Duration time)
-    {}
-
-    public override void updateMove()
-    {}
-
-    public override void updateMove2()
-    {}
 }
 
-class GravityPortUp : GameObject
+class GravityPortUp : Port
 {
-    private Animation _stand;
-
     this(RenderWindow window, Texture texture, int x, int y)
     {
         super(window, texture, x, y);
@@ -375,31 +207,10 @@ class GravityPortUp : GameObject
         _currentAnimation = _stand;
         _sprite = new AnimatedSprite(dur!"msecs"(0), true, false);
     }
-
-    public override void draw()
-    {
-        _sprite.play(_currentAnimation, null);
-        _sprite.position = Vector2f(_x * 32f, _y * 32f);
-        _window.draw(_sprite);
-    }
-
-    public override void stop()
-    {}
-
-    public override void update(Duration time)
-    {}
-
-    public override void updateMove()
-    {}
-
-    public override void updateMove2()
-    {}
 }
 
-class GravityPortDown : GameObject
+class GravityPortDown : Port
 {
-    private Animation _stand;
-
     this(RenderWindow window, Texture texture, int x, int y)
     {
         super(window, texture, x, y);
@@ -414,23 +225,4 @@ class GravityPortDown : GameObject
         _currentAnimation = _stand;
         _sprite = new AnimatedSprite(dur!"msecs"(0), true, false);
     }
-
-    public override void draw()
-    {
-        _sprite.play(_currentAnimation, null);
-        _sprite.position = Vector2f(_x * 32f, _y * 32f);
-        _window.draw(_sprite);
-    }
-
-    public override void stop()
-    {}
-
-    public override void update(Duration time)
-    {}
-
-    public override void updateMove()
-    {}
-
-    public override void updateMove2()
-    {}
 }

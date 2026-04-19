@@ -1,6 +1,4 @@
-import std.stdio;
 import std.file;
-import std.conv;
 import dsfml.graphics;
 import dsfml.system;
 import level;

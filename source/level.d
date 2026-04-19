@@ -20,8 +20,8 @@ import objects.port;
 import objects.terminal;
 import objects.hardware;
 import objects.enemies;
-import objects.dummy;
 import objects.explosion;
+import objects.reservation;
 
 struct LevelPort
 {
@@ -31,7 +31,7 @@ struct LevelPort
     byte fr_zonks; //2 (turn on) or 0 (turn off) freeze zonks
     byte fr_enemy; //1 (turn on) or 0 (turn off) freeze enemies
     byte unused;
-};
+}
 
 struct LevelData
 {
@@ -46,7 +46,7 @@ struct LevelData
     byte switches;//Number of gravity switch ports (maximum 10!)
     LevelPort[10] ports;
     int unused3;
-};
+}
 
 class Level
 {
@@ -56,6 +56,12 @@ class Level
     private Murphy _murphy;
     private RenderWindow _window;
     private Texture _tiles;
+
+    // The C original runs physics at ~35 Hz (the VGA frame rate it targeted).
+    // We accumulate wall-clock time here and drain one physics tick every
+    // _simTickDur regardless of the surrounding 120 fps render loop.
+    private Duration _simAccumulator;
+    private Duration _simTickDur = dur!"msecs"(28);
 
     this(float width, float height)
     {
@@ -169,10 +175,10 @@ class Level
     {
         auto view = window.view.dup;
         auto center = FloatRect(_murphy.x * 32, _murphy.y * 32, 32, 32).getCenter;
-        auto viewXL = center.x - view.size.x / 2;
-        auto viewYL = center.y - view.size.y / 2;
-        auto viewXR = center.x + view.size.x / 2;
-        auto viewYR = center.y + view.size.y / 2;
+        auto immutable viewXL = center.x - view.size.x / 2;
+        auto immutable viewYL = center.y - view.size.y / 2;
+        auto immutable viewXR = center.x + view.size.x / 2;
+        auto immutable viewYR = center.y + view.size.y / 2;
         if(viewXR > 60 * 32 - 16)
             center.x = 60 * 32 - view.size.x / 2 - 16;
         if(viewXL < 16)
@@ -187,6 +193,8 @@ class Level
 
     public auto get(int x, int y)
     {
+        if(x < 0 || x >= 60 || y < 0 || y >= 24)
+            return null;
         return _map[x][y];
     }
 
@@ -197,35 +205,95 @@ class Level
 
     public bool check(int x, int y)
     {
+        if(x < 0 || x >= 60 || y < 0 || y >= 24)
+            return false;
+        return _map[x][y] is null;
+    }
+
+    // --- state-machine helpers ---
+
+    // True if (x, y) is an empty Space cell (null, no object, no reservation).
+    public bool isSpace(int x, int y)
+    {
+        if(x < 0 || x >= 60 || y < 0 || y >= 24)
+            return false;
+        return _map[x][y] is null;
+    }
+
+    // True if (x, y) is Space OR a Reservation of any of the listed kinds.
+    public bool isSpaceOrReservation(int x, int y, ReservationKind[] kinds...)
+    {
+        if(x < 0 || x >= 60 || y < 0 || y >= 24)
+            return false;
         if(_map[x][y] is null)
             return true;
+        auto r = cast(Reservation)_map[x][y];
+        if(r is null)
+            return false;
+        foreach(k; kinds)
+            if(r.kind == k)
+                return true;
         return false;
+    }
+
+    // True if (x, y) contains a resting tile (state 0, not moving) that can
+    // act as a support cell for a slide above: Zonk, Infotron, or RamChip
+    // centre variant. Other RamChip variants are decorative edges and do
+    // NOT support slides (matching the C LevelTileTypeChip check).
+    public bool isRestingSlideSupport(int x, int y)
+    {
+        if(x < 0 || x >= 60 || y < 0 || y >= 24)
+            return false;
+        auto cell = _map[x][y];
+        if(cell is null || cell.state != 0 || cell.moving)
+            return false;
+        return cast(Zonk)cell !is null
+            || cast(Infotron)cell !is null
+            || (typeid(cell) == typeid(RamChip));
+    }
+
+    public void reserve(int x, int y, ReservationKind kind)
+    {
+        _map[x][y] = new Reservation(x, y, kind);
+        _map[x][y].load(this);
+    }
+
+    public void clearCell(int x, int y)
+    {
+        _map[x][y] = null;
+    }
+
+    public void setCell(int x, int y, GameObject obj)
+    {
+        _map[x][y] = obj;
     }
 
     public MoveCheckResult checkMove(int x, int y, GameObject object, MoveDirection direction)
     {
+        if(x < 0 || x >= 60 || y < 0 || y >= 24)
+            return MoveCheckResult.False;
         if(_map[x][y] is null)
             return MoveCheckResult.True;
         auto player = cast(Murphy)object;
         auto consumable = cast(IConsumable)_map[x][y];
         if(consumable !is null)
             return player !is null ? MoveCheckResult.True : MoveCheckResult.False;
-        if(player !is null && typeid(_map[x][y]) != typeid(Dummy))
-        {
-            auto object2 = _map[x][y];
-            if(object2 is null || object2.fall || object2.moving)
-                return MoveCheckResult.False;
-            auto pushable = cast(IPushable)object2;
-            auto useable = cast(IUseable)object2;
-            if(useable !is null)
-                useable.use(player, direction);
-            if(pushable is null)
-                return MoveCheckResult.False;
-            auto res = MoveCheckResult.False;
-            res = pushable.push(player, direction);
-            return res;
-        }
-        return MoveCheckResult.False;
+        if(player is null)
+            return MoveCheckResult.False;
+        auto object2 = _map[x][y]; // @suppress(dscanner.suspicious.unmodified)
+        if(object2.fall || object2.moving)
+            return MoveCheckResult.False;
+        // Reservations mark cells in mid-slide / mid-fall / mid-walk and
+        // block Murphy regardless of kind.
+        if(cast(Reservation)object2 !is null)
+            return MoveCheckResult.False;
+        auto pushable = cast(IPushable)object2;
+        auto useable = cast(IUseable)object2;
+        if(useable !is null)
+            useable.use(player, direction);
+        if(pushable is null)
+            return MoveCheckResult.False;
+        return pushable.push(player, direction);
     }
 
     public void move(GameObject object, MoveDirection direction)
@@ -233,20 +301,23 @@ class Level
         object.oldX = object.x;
         object.oldY = object.y;
         object.direction = direction;
-        auto player = typeid(object) == typeid(Murphy);
         auto res = MoveCheckResult.False;
-        if(direction == MoveDirection.Up && (res = checkMove(object.x, object.y - 1, object, direction)) != MoveCheckResult.False)
+        if(direction == MoveDirection.Up &&
+         (res = checkMove(object.x, object.y - 1, object, direction)) != MoveCheckResult.False)
             object.y = object.y - 1;
-        else if(direction == MoveDirection.Down && (res = checkMove(object.x, object.y + 1, object, direction)) != MoveCheckResult.False)
+        else if(direction == MoveDirection.Down &&
+         (res = checkMove(object.x, object.y + 1, object, direction)) != MoveCheckResult.False)
             object.y = object.y + 1;
-        else if(direction == MoveDirection.Left && (res = checkMove(object.x - 1, object.y, object, direction)) != MoveCheckResult.False)
+        else if(direction == MoveDirection.Left &&
+         (res = checkMove(object.x - 1, object.y, object, direction)) != MoveCheckResult.False)
             object.x = object.x - 1;
-        else if(direction == MoveDirection.Right && (res = checkMove(object.x + 1, object.y, object, direction)) != MoveCheckResult.False)
+        else if(direction == MoveDirection.Right &&
+         (res = checkMove(object.x + 1, object.y, object, direction)) != MoveCheckResult.False)
             object.x = object.x + 1;
         if(res != MoveCheckResult.False)
         {
             if(_map[object.x][object.y] is null)
-                _map[object.x][object.y] = new Dummy(null, null, object.x, object.y);
+                reserve(object.x, object.y, ReservationKind.Cleared);
             object.moving = true;
             object.sprite.play(object.currentAnimation, &object.finishMove);
         }
@@ -264,8 +335,11 @@ class Level
 
     public void finishMove(GameObject object)
     {
-        if(!object.pushed)
-            _map[object.oldX][object.oldY] = null;
+        immutable int oldX = object.oldX;
+        immutable int oldY = object.oldY;
+        immutable bool wasPushed = object.pushed;
+        if(!wasPushed && _map[oldX][oldY] is object)
+            _map[oldX][oldY] = null;
         _map[object.x][object.y] = object;
         object.direction = MoveDirection.None;
         object.stop();
@@ -299,12 +373,12 @@ class Level
         for(auto i = -1; i <= 1; i++)
         {
             auto x = ox + i;
-            if(x >= 60)
+            if(x < 0 || x >= 60)
                 continue;
             for(auto l = -1; l <= 1; l++)
             {
                 auto y = oy + l;
-                if(y >= 24)
+                if(y < 0 || y >= 24)
                     continue;
                 auto object = get(x, y);
                 auto nonDestructible = cast(INonDestructible)object;
@@ -338,7 +412,9 @@ class Level
         {
             foreach(ref cell; row)
             {
-                if(cell !is null && typeid(cell) != typeid(Murphy))
+                if(cell !is null
+                    && typeid(cell) != typeid(Murphy)
+                    && cast(Reservation)cell is null)
                     cell.draw();
             }
         }
@@ -348,6 +424,7 @@ class Level
 
     public void update(Duration time)
     {
+        // Animation / input pass runs every wall-clock frame.
         foreach(ref row; _map)
         {
             foreach(ref cell; row)
@@ -358,22 +435,62 @@ class Level
         }
         if(!_murphy.dead)
             _murphy.update(time);
-        foreach(ref row; _map)
+
+        // Drain physics ticks from the accumulator. The sim runs at a fixed
+        // rate decoupled from rendering so state-machine advancement matches
+        // the C original's timing regardless of the surrounding frame rate.
+        _simAccumulator += time;
+        while(_simAccumulator >= _simTickDur)
         {
-            foreach_reverse(ref cell; row)
+            _simAccumulator -= _simTickDur;
+            _stepSim();
+        }
+    }
+
+    // One sim-tick pass. Iterates the grid top-to-bottom, left-to-right —
+    // matching updateMovingObjects in the C original — and invokes
+    // updateState on each object that still occupies the position it was
+    // snapshotted at. Taking a snapshot at tick start is load-bearing: a
+    // zonk that commits a downward move mid-tick (e.g. at state 0x42)
+    // would otherwise be visited a second time when the iteration reaches
+    // its new row.
+    private void _stepSim()
+    {
+        static struct Pos { int x; int y; }
+        Pos[] positions;
+        positions.reserve(64);
+        // Only snapshot cells whose tile has a moving function (C's
+        // movingFunctions table: Zonk, Infotron, OrangeDisk, Explosion,
+        // etc.). C's filter `tile & 13 != 0 && tile < 0x20` excludes
+        // reservation sentinels (0x88/0x99/0xAA/0xFF). If we included
+        // reservations and a slide-right commit swapped in a zonk at
+        // the reservation's cell mid-tick, iteration would reach the
+        // zonk at its new position later and advance its state a
+        // second time — a double-tick bug.
+        for(int y = 0; y < 24; y++)
+        {
+            for(int x = 0; x < 60; x++)
             {
-                if(cell !is null)
-                    cell.updateMove();
+                auto cell = _map[x][y];
+                if(cell is null)
+                    continue;
+                if(cast(Reservation)cell !is null)
+                    continue;
+                if(cell.x != x || cell.y != y)
+                    continue;
+                positions ~= Pos(x, y);
             }
         }
-        foreach(ref row; _map)
+        foreach(pos; positions)
         {
-            foreach_reverse(ref cell; row)
-            {
-                if(cell !is null)
-                    cell.updateMove2();
-            }
+            auto cell = _map[pos.x][pos.y];
+            if(cell is null)
+                continue;
+            if(cast(Reservation)cell !is null)
+                continue;
+            if(cell.x != pos.x || cell.y != pos.y)
+                continue;
+            cell.updateState(this);
         }
     }
 }
-

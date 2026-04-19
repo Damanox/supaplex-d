@@ -226,7 +226,9 @@ class AnimatedSprite : Drawable, Transformable
                 m_currentTime = m_currentTime % m_frameTime;
                 // get next Frame index
                 if(m_currentFrame + 1 < m_animation.getSize())
+                {
                     m_currentFrame++;
+                }
                 else
                 {
                     // animation has ended

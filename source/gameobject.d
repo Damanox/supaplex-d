@@ -37,6 +37,10 @@ abstract class GameObject
     protected shared bool _moving;
     protected bool _fall;
     protected bool _pushed;
+    // State-machine byte (ported from the C StatefulLevelTile.state).
+    // 0 means "at rest" or "not participating". Non-zero values encode
+    // fall / slide / reservation sub-states per the Supaplex original.
+    protected ubyte _state;
 
     this(RenderWindow window, Texture texture, int x, int y)
     {
@@ -50,8 +54,10 @@ abstract class GameObject
     public abstract void stop();
     public abstract void draw();
     public abstract void update(Duration time);
-    public abstract void updateMove();
-    public abstract void updateMove2();
+
+    // Per-simulation-tick state advancement. State-machine-driven objects
+    // (Zonk, Infotron) override this; static tiles leave it as a no-op.
+    public void updateState(Level level) {}
 
     @property
     {
@@ -154,6 +160,19 @@ abstract class GameObject
         public void pushed(bool pushed)
         {
             _pushed = pushed;
+        }
+    }
+
+    @property
+    {
+        public ubyte state()
+        {
+            return _state;
+        }
+
+        public void state(ubyte s)
+        {
+            _state = s;
         }
     }
 

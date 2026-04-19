@@ -64,11 +64,5 @@ class Base : GameObject, IConsumable
     {
         _sprite.update(time);
     }
-
-    public override void updateMove()
-    {}
-
-    public override void updateMove2()
-    {}
 }
 

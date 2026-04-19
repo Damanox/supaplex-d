@@ -6,7 +6,7 @@ import animation;
 import level;
 import utils;
 import interfaces;
-import objects.dummy;
+import objects.reservation;
 
 class FloppyOrange : GameObject, IPushable
 {
@@ -71,28 +71,25 @@ class FloppyOrange : GameObject, IPushable
         _sprite.update(time);
     }
 
-    public override void updateMove()
+    public override void updateState(Level level)
     {
         if(_moving)
             return;
-        if(_level.check(x, y + 1))
+        if(level.check(x, y + 1))
         {
             _sprite.setFrameTime(dur!"msecs"(100));
             _fall = true;
             _pushed = false;
-            _level.move(this, MoveDirection.Down);
+            level.move(this, MoveDirection.Down);
         }
         else if(_fall)
         {
             _fall = false;
-            auto object = _level.get(x, y + 1);
-            if(object !is null && typeid(object) != typeid(Dummy) && !object.moving)
-                _level.explode(x, y);
+            auto object = level.get(x, y + 1);
+            if(object !is null && cast(Reservation)object is null && !object.moving)
+                level.explode(x, y);
         }
     }
-
-    public override void updateMove2()
-    {}
 }
 
 class FloppyYellow : GameObject, IPushable, IExplosive
@@ -156,11 +153,6 @@ class FloppyYellow : GameObject, IPushable, IExplosive
         _sprite.update(time);
     }
 
-    public override void updateMove()
-    {}
-
-    public override void updateMove2()
-    {}
 }
 
 
@@ -195,9 +187,4 @@ class FloppyRed : GameObject
     public override void update(Duration time)
     {}
 
-    public override void updateMove()
-    {}
-
-    public override void updateMove2()
-    {}
 }
