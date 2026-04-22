@@ -300,6 +300,27 @@ class Level
         if(_map[x][y] is null)
             return MoveCheckResult.True;
         auto player = cast(Murphy)object;
+
+        // Bug contact. If Murphy steps onto an active Bug, detonate at
+        // Murphy's own cell and block the move. If the Bug is dormant 
+        // (state >= 0x80), swap the cell to a Base and fall through to
+        // the regular consumable eat-path so Murphy walks onto it normally.
+        if(player !is null)
+        {
+            auto bug = cast(Bug)_map[x][y];
+            if(bug !is null)
+            {
+                if(bug.isActive())
+                {
+                    explode(player.x, player.y);
+                    return MoveCheckResult.False;
+                }
+                auto base = new Base(_window, _tiles, x, y);
+                base.load(this);
+                _map[x][y] = base;
+            }
+        }
+
         auto consumable = cast(IConsumable)_map[x][y];
         if(consumable !is null)
             return player !is null ? MoveCheckResult.True : MoveCheckResult.False;
