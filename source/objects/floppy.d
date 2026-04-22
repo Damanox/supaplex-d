@@ -164,9 +164,17 @@ class FloppyYellow : GameObject, IPushable, IExplosive
 }
 
 
-class FloppyRed : GameObject
+// Two phases, encoded in `_state`:
+//   * Dormant (state == 0): sits on the level, pickup-able by Murphy via
+//     the IConsumable path. Does nothing on its own.
+//   * Planted/counting (state 1..0x27): set by Murphy.plant(). Ticks +1
+//     every sim tick; at 0x28 (40 ticks ≈ 1.1 s at 35 Hz) detonates a
+//     3×3 explosion at its cell.
+class FloppyRed : GameObject, IConsumable
 {
     private Animation _stand;
+    private Animation _disappear;
+    private bool _disappearing;
 
     this(RenderWindow window, Texture texture, int x, int y)
     {
@@ -179,8 +187,32 @@ class FloppyRed : GameObject
         _stand = new Animation();
         _stand.setSpriteSheet(_texture);
         _stand.addTile(2, 12);
+        _disappear = new Animation();
+        _disappear.setSpriteSheet(_texture);
+        _disappear.addTile(2, 12);
+        _disappear.addTile(3, 12);
+        _disappear.addTile(4, 12);
+        _disappear.addTile(5, 12);
+        _disappear.addTile(6, 12);
+        _disappear.addTile(7, 12);
+        _disappear.addTile(8, 12);
         _currentAnimation = _stand;
-        _sprite = new AnimatedSprite(dur!"msecs"(0), true, false);
+        _sprite = new AnimatedSprite(dur!"msecs"(100), true, false);
+        _sprite.play(_stand, null);
+        _state = 0;
+    }
+
+    public override void startDisappear()
+    {
+        _disappearing = true;
+        _currentAnimation = _disappear;
+        _sprite.play(_disappear, &stopDisappear);
+    }
+
+    public override void stopDisappear()
+    {
+        _disappearing = false;
+        _level.destroy(x, y);
     }
 
     public override void draw()
@@ -193,6 +225,29 @@ class FloppyRed : GameObject
     {}
 
     public override void update(Duration time)
-    {}
+    {
+        _sprite.update(time);
+    }
 
+    public override void updateState(Level level)
+    {
+        // Dormant: unplanted red disk just sits on the level.
+        if(_state == 0)
+            return;
+
+        // Planted countdown. increment state byte every sim tick since
+        // each planted disk is its own object here.
+        _state++;
+        if(_state >= 0x28)
+        {
+            level.explode(_x, _y);
+        }
+    }
+
+    // Called by Murphy.plant() to arm the countdown. Cell placement is
+    // handled by the caller (Level.setCell etc.); we just flip state.
+    public void arm()
+    {
+        _state = 1;
+    }
 }

@@ -19,6 +19,7 @@ import utils;
 class Bug : GameObject
 {
     private Animation _stand;
+    private Animation _active;
     private int _subTick;
 
     this(RenderWindow window, Texture texture, int x, int y)
@@ -31,9 +32,23 @@ class Bug : GameObject
         _level = level;
         _stand = new Animation();
         _stand.setSpriteSheet(_texture);
-        _stand.addTile(1, 10);
+        _stand.addTile(0, 10);
+        _active = new Animation();
+        _active.setSpriteSheet(_texture);
+        for(auto i = 0; i < 5; i++)
+        {
+            _active.addTile(1, 10);
+            _active.addTile(2, 10);
+            _active.addTile(3, 10);
+            _active.addTile(4, 10);
+            _active.addTile(5, 10);
+        }
+
         _currentAnimation = _stand;
-        _sprite = new AnimatedSprite(dur!"msecs"(0), true, false);
+        // Frame time for the _active cycle. With 5 frames × 60 ms ≈ 300 ms
+        // per sparking cycle — close to the DOS original's visual feel.
+        _sprite = new AnimatedSprite(dur!"msecs"(60), true, false);
+        _sprite.play(_stand, null);
         // Starts active at state 0 — matches a fresh Bug tile in the
         // level data (no sub-state encoded on-disk).
         _state = 0;
@@ -41,7 +56,16 @@ class Bug : GameObject
 
     public override void draw()
     {
-        _sprite.play(_currentAnimation, null);
+        // Phase-driven animation: sparking cycle while active, static
+        // tile while dormant. Swap without restarting the sprite clock
+        // if we're already on the right animation — otherwise a new
+        // play() resets the frame each draw.
+        auto want = isActive() ? _active : _stand;
+        if(_currentAnimation !is want)
+        {
+            _currentAnimation = want;
+            _sprite.play(_currentAnimation, null);
+        }
         _sprite.position = Vector2f(_x * 32f, _y * 32f);
         _window.draw(_sprite);
     }
@@ -50,13 +74,13 @@ class Bug : GameObject
     {}
 
     public override void update(Duration time)
-    {}
+    {
+        _sprite.update(time);
+    }
 
     public override void updateState(Level level)
     {
-        // Gate: C runs the Bug state machine only every 4th gFrameCounter
-        // tick. We reproduce with a per-bug counter — every 4 sim ticks
-        // advance the state byte once.
+        // every 4 sim ticks advance the state byte once.
         _subTick++;
         if((_subTick & 3) != 0)
             return;
@@ -79,8 +103,7 @@ class Bug : GameObject
         // Level.checkMove, not from the Bug's own tick.
     }
 
-    // True when the Bug is in its active (dangerous) phase. Port of the
-    // `state < 0x80` check in C supaplex.c:10320.
+    // True when the Bug is in its active (dangerous) phase.
     public bool isActive() const
     {
         return _state < 0x80;

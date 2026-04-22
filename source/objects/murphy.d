@@ -7,6 +7,7 @@ import level;
 import gameobject;
 import animation;
 import utils;
+import objects.floppy;
 
 class Murphy : GameObject
 {
@@ -22,6 +23,18 @@ class Murphy : GameObject
     private Vector2f _center;
     private bool _dead;
     private bool _looking;
+
+    // Red-disk inventory. Murphy picks up each dormant FloppyRed he walks
+    // onto (see Level.checkMove); pressing P plants one at his last-
+    // facing direction, starting the 40-tick detonation countdown.
+    private int _redDiskCount;
+    // Last direction a movement key was pressed. Used to pick the target
+    // cell for planting. Init to Right so the first plant before any
+    // movement has a defined direction (matches the DOS original which
+    // spawns Murphy facing right).
+    private MoveDirection _facing = MoveDirection.Right;
+    // Edge-trigger guard so holding P plants only one disk per press.
+    private bool _plantHeld;
 
     this(RenderWindow window, Texture texture, int x, int y)
     {
@@ -39,6 +52,46 @@ class Murphy : GameObject
         {
             _dead = value;
         }
+    }
+
+    // Called from Level.checkMove when Murphy walks onto a dormant
+    // FloppyRed. The disk is consumed as part of the regular IConsumable
+    // move path; we just bump the inventory here.
+    public void pickupRedDisk()
+    {
+        _redDiskCount++;
+    }
+
+    // Plant a red disk in the cell Murphy is currently facing. No-op if
+    // the inventory is empty, the target is out of bounds, or the target
+    // cell is not empty Space. Port of the C UserInputSpaceOnly plant
+    // branch (supaplex.c:10720-10733), simplified — we drop the disk in
+    // the facing cell rather than at Murphy's own cell (the C approach
+    // needs a two-step "mark Murphy's cell, promote when he vacates"
+    // dance we'd rather avoid).
+    private void plant()
+    {
+        if(_redDiskCount <= 0)
+            return;
+        int tx = _x;
+        int ty = _y;
+        final switch(_facing) with(MoveDirection)
+        {
+            case Left:  tx--; break;
+            case Right: tx++; break;
+            case Up:    ty--; break;
+            case Down:  ty++; break;
+            case None:  return;
+        }
+        if(tx < 0 || tx >= 60 || ty < 0 || ty >= 24)
+            return;
+        if(_level.get(tx, ty) !is null)
+            return;
+        auto disk = new FloppyRed(_window, _texture, tx, ty);
+        disk.load(_level);
+        disk.arm();
+        _level.setCell(tx, ty, disk);
+        _redDiskCount--;
     }
 
     public override void load(Level level)
@@ -162,8 +215,16 @@ class Murphy : GameObject
             stop();
         }
 
+        // Plant-red-disk trigger. Edge-triggered on 'P' press so holding
+        // it plants only one disk.
+        immutable bool plantNow = Keyboard.isKeyPressed(Keyboard.Key.P);
+        if(plantNow && !_plantHeld)
+            plant();
+        _plantHeld = plantNow;
+
         if(Keyboard.isKeyPressed(Keyboard.Key.Up))
         {
+            _facing = MoveDirection.Up;
             if(_looking)
             {
                 _currentAnimation = _lookUp;
@@ -177,6 +238,7 @@ class Murphy : GameObject
         }
         else if(Keyboard.isKeyPressed(Keyboard.Key.Down))
         {
+            _facing = MoveDirection.Down;
             if(_looking)
             {
                 _currentAnimation = _lookDown;
@@ -190,6 +252,7 @@ class Murphy : GameObject
         }
         else if(Keyboard.isKeyPressed(Keyboard.Key.Left))
         {
+            _facing = MoveDirection.Left;
             if(_looking)
             {
                 _currentAnimation = _lookLeft;
@@ -203,6 +266,7 @@ class Murphy : GameObject
         }
         else if(Keyboard.isKeyPressed(Keyboard.Key.Right))
         {
+            _facing = MoveDirection.Right;
             if(_looking)
             {
                 _currentAnimation = _lookRight;

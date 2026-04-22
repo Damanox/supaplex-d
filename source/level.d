@@ -323,7 +323,22 @@ class Level
 
         auto consumable = cast(IConsumable)_map[x][y];
         if(consumable !is null)
-            return player !is null ? MoveCheckResult.True : MoveCheckResult.False;
+        {
+            if(player !is null)
+            {
+                // Red disk pickup. A dormant FloppyRed (state 0) bumps
+                // Murphy's inventory when he walks onto it. Planted
+                // disks (state > 0) are in the middle of their
+                // detonation countdown and are not picked up — Murphy
+                // stepping onto one still consumes it via the normal
+                // IConsumable path, but the countdown is discarded.
+                auto red = cast(FloppyRed)_map[x][y];
+                if(red !is null && red.state == 0)
+                    player.pickupRedDisk();
+                return MoveCheckResult.True;
+            }
+            return MoveCheckResult.False;
+        }
         if(player is null)
             return MoveCheckResult.False;
         auto object2 = _map[x][y]; // @suppress(dscanner.suspicious.unmodified)
