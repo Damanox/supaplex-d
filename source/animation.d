@@ -40,7 +40,7 @@ class Animation
         return _frames.length;
     }
 
-    const IntRect getFrame(size_t n)
+    IntRect getFrame(size_t n) const
     {
         return _frames[n];
     }

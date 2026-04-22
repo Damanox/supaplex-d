@@ -8,7 +8,7 @@ import utils;
 import interfaces;
 import objects.reservation;
 
-class FloppyOrange : GameObject, IPushable
+class FloppyOrange : GameObject, IPushable, IExplosive
 {
     private Animation _stand;
 
@@ -86,8 +86,16 @@ class FloppyOrange : GameObject, IPushable
         {
             _fall = false;
             auto object = level.get(x, y + 1);
-            if(object !is null && cast(Reservation)object is null && !object.moving)
-                level.explode(x, y);
+            if(object !is null && cast(Reservation)object is null)
+            {
+                // IExplosive targets (e.g. SnikSnak) detonate on contact
+                // even if they're mid-move — the explosion replaces the
+                // enemy in the grid via Level.explode. For non-IExplosive
+                // tiles keep the old guard so a floppy doesn't detonate
+                // against an object that's animating out of this cell.
+                if(cast(IExplosive)object !is null || !object.moving)
+                    level.explode(x, y);
+            }
         }
     }
 }

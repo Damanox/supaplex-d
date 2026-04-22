@@ -63,6 +63,14 @@ class Level
     private Duration _simAccumulator;
     private Duration _simTickDur = dur!"msecs"(28);
 
+    // Per-cell delayed-explosion countdown. Port of C's gExplosionTimers
+    // (see supaplex.c:6257 updateExplosionTimers). When Level.explode
+    // destroys an IExplosive tile (FloppyOrange / FloppyYellow / SnikSnak
+    // etc.), the cell is replaced with an Explosion and its timer is set
+    // to 13. Each sim tick the timer decrements; on reaching 0 another
+    // Level.explode fires at that cell, producing the chain reaction.
+    private byte[24][60] _explosionTimers;
+
     // Fraction of the current sim tick already elapsed (0..1). Used by
     // state-machine-driven renderers (Zonk/Infotron) to interpolate the
     // visual sub-tile position between discrete 35 Hz sim steps so that at
@@ -355,6 +363,31 @@ class Level
         immutable int oldX = object.oldX;
         immutable int oldY = object.oldY;
         immutable bool wasPushed = object.pushed;
+
+        // Mid-move kill check. Port of the C "tile != expected" early-out
+        // in updateSnikSnakTiles / updateOrangeDiskTiles etc. In C, if an
+        // Explosion overwrites the destination cell mid-frame, the per-
+        // type update function returns immediately on its next tick and
+        // the object never commits. Our animation-driven path doesn't
+        // poll the grid each tick, so we check at commit time: if the
+        // destination cell now holds an Explosion, abandon the commit so
+        // the explosion isn't overwritten. IConsumable targets (Base,
+        // Infotron) are legitimately present at dest during Murphy's eat-
+        // move — the disappear path clears them asynchronously — so those
+        // are NOT treated as "claimed".
+        auto dest = _map[object.x][object.y];
+        immutable bool destClaimed = cast(Explosion)dest !is null;
+
+        if(destClaimed)
+        {
+            if(!wasPushed && _map[oldX][oldY] is object)
+                _map[oldX][oldY] = null;
+            object.direction = MoveDirection.None;
+            object.moving = false;
+            object.pushed = false;
+            return;
+        }
+
         if(!wasPushed && _map[oldX][oldY] is object)
             _map[oldX][oldY] = null;
         _map[object.x][object.y] = object;
@@ -403,6 +436,14 @@ class Level
                     continue;
                 if(object !is null && typeid(object) == typeid(Murphy))
                     (cast(Murphy)object).dead = true;
+                // Chain-reaction: IExplosive tiles (floppies, SnikSnak)
+                // caught in a blast get a delayed-detonation timer set,
+                // matching C's detonateBigExplosionTile (supaplex.c:6302).
+                // The cell is still overwritten with an Explosion right
+                // now; the timer triggers a fresh explode() at (x, y)
+                // 13 ticks later.
+                if(object !is null && cast(IExplosive)object !is null)
+                    _explosionTimers[x][y] = 13;
                 auto explosion = new Explosion(_window, _tiles, x, y);
                 explosion.load(this);
                 _map[x][y] = explosion;
@@ -508,6 +549,26 @@ class Level
             if(cell.x != pos.x || cell.y != pos.y)
                 continue;
             cell.updateState(this);
+        }
+
+        // Port of updateExplosionTimers (supaplex.c:6257). Decrement each
+        // positive per-cell countdown; when it hits 0, re-detonate at
+        // that cell so an IExplosive tile caught in a blast chains into
+        // its own 3×3 explosion 13 ticks later. Iteration runs AFTER the
+        // updateState pass to preserve C's ordering (updateMovingObjects
+        // first, then updateExplosionTimers).
+        for(int y = 0; y < 24; y++)
+        {
+            for(int x = 0; x < 60; x++)
+            {
+                auto t = _explosionTimers[x][y];
+                if(t <= 0)
+                    continue;
+                t = cast(byte)(t - 1);
+                _explosionTimers[x][y] = t;
+                if(t == 0)
+                    explode(x, y);
+            }
         }
     }
 }
