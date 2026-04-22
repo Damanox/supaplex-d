@@ -63,6 +63,23 @@ class Level
     private Duration _simAccumulator;
     private Duration _simTickDur = dur!"msecs"(28);
 
+    // Fraction of the current sim tick already elapsed (0..1). Used by
+    // state-machine-driven renderers (Zonk/Infotron) to interpolate the
+    // visual sub-tile position between discrete 35 Hz sim steps so that at
+    // higher render rates (e.g. 120 fps) falls and slides look smooth
+    // instead of stepping by 4 px every 28 ms.
+    public float subTickFraction() const
+    {
+        auto num = _simAccumulator.total!"hnsecs";
+        auto den = _simTickDur.total!"hnsecs";
+        if(den <= 0)
+            return 0f;
+        float f = cast(float)num / cast(float)den;
+        if(f < 0f) f = 0f;
+        if(f > 1f) f = 1f;
+        return f;
+    }
+
     this(float width, float height)
     {
         _width = width;

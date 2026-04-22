@@ -119,6 +119,10 @@ class Zonk : GameObject, IPushable, ISlideable
         Animation anim = _stand;
         size_t frame = 0;
 
+        // Interpolate within the current sim tick for smooth motion at
+        // render rates higher than the 35 Hz physics rate. frac in [0,1).
+        immutable float frac = _level.subTickFraction();
+
         // Fall covers a full tile of vertical motion across the 8 sub-
         // states 0x10..0x17, advancing 4 pixels per tick. Slides cover a
         // full tile of horizontal motion across the 8 sub-states
@@ -132,7 +136,7 @@ class Zonk : GameObject, IPushable, ISlideable
             case 0x10: // falling, logical = destination (origin one row up)
                 {
                     auto step = _state - 0x10;          // 0..7
-                    visualY = _y * 32f - 32f + step * 4f;
+                    visualY = _y * 32f - 32f + (step + frac) * 4f;
                     anim = _down;
                     frame = step % _down.getSize();
                 }
@@ -140,7 +144,7 @@ class Zonk : GameObject, IPushable, ISlideable
             case 0x20: // post-slide-left, logical = destination (slid from x+1)
                 {
                     auto tick = _state & 0x0F;          // 2..7
-                    visualX = (_x + 1) * 32f - tick * 4f;
+                    visualX = (_x + 1) * 32f - (tick + frac) * 4f;
                     anim = _left;
                     frame = tick % _left.getSize();
                 }
@@ -148,7 +152,7 @@ class Zonk : GameObject, IPushable, ISlideable
             case 0x30: // post-slide-right, logical = destination (slid from x-1)
                 {
                     auto tick = _state & 0x0F;          // 2..7
-                    visualX = (_x - 1) * 32f + tick * 4f;
+                    visualX = (_x - 1) * 32f + (tick + frac) * 4f;
                     anim = _right;
                     frame = tick % _right.getSize();
                 }
@@ -160,7 +164,7 @@ class Zonk : GameObject, IPushable, ISlideable
             case 0x50: // slide-left in progress, logical = origin
                 {
                     auto tick = _state & 0x0F;          // 0..1
-                    visualX = _x * 32f - tick * 4f;
+                    visualX = _x * 32f - (tick + frac) * 4f;
                     anim = _left;
                     frame = tick % _left.getSize();
                 }
@@ -168,7 +172,7 @@ class Zonk : GameObject, IPushable, ISlideable
             case 0x60: // slide-right in progress, logical = origin
                 {
                     auto tick = _state & 0x0F;          // 0..1
-                    visualX = _x * 32f + tick * 4f;
+                    visualX = _x * 32f + (tick + frac) * 4f;
                     anim = _right;
                     frame = tick % _right.getSize();
                 }

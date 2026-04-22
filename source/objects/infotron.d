@@ -103,13 +103,15 @@ class Infotron : GameObject, IConsumable, ISlideable
         Animation anim = _stand;
         size_t frame = 0;
 
+        immutable float frac = _level.subTickFraction();
+
         auto family = _state & 0xF0;
         switch(family)
         {
             case 0x10:
                 {
                     auto step = _state - 0x10;          // 0..7
-                    visualY = _y * 32f - 32f + step * 4f;
+                    visualY = _y * 32f - 32f + (step + frac) * 4f;
                     anim = _down;
                     frame = step % _down.getSize();
                 }
@@ -117,7 +119,7 @@ class Infotron : GameObject, IConsumable, ISlideable
             case 0x20:
                 {
                     auto tick = _state & 0x0F;          // 2..7
-                    visualX = (_x + 1) * 32f - tick * 4f;
+                    visualX = (_x + 1) * 32f - (tick + frac) * 4f;
                     anim = _left;
                     frame = tick % _left.getSize();
                 }
@@ -125,7 +127,7 @@ class Infotron : GameObject, IConsumable, ISlideable
             case 0x30:
                 {
                     auto tick = _state & 0x0F;          // 2..7
-                    visualX = (_x - 1) * 32f + tick * 4f;
+                    visualX = (_x - 1) * 32f + (tick + frac) * 4f;
                     anim = _right;
                     frame = tick % _right.getSize();
                 }
@@ -137,7 +139,7 @@ class Infotron : GameObject, IConsumable, ISlideable
             case 0x50:
                 {
                     auto tick = _state & 0x0F;          // 0..1
-                    visualX = _x * 32f - tick * 4f;
+                    visualX = _x * 32f - (tick + frac) * 4f;
                     anim = _left;
                     frame = tick % _left.getSize();
                 }
@@ -145,7 +147,7 @@ class Infotron : GameObject, IConsumable, ISlideable
             case 0x60:
                 {
                     auto tick = _state & 0x0F;          // 0..1
-                    visualX = _x * 32f + tick * 4f;
+                    visualX = _x * 32f + (tick + frac) * 4f;
                     anim = _right;
                     frame = tick % _right.getSize();
                 }
